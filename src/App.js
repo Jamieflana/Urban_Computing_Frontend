@@ -17,18 +17,14 @@ function App() {
 
     let intervalId;
 
-    if (isCollecting) {
-      const newSessionId = `session_${Date.now()}`;
-      setSessionId(newSessionId);
-      setCount(0);
-      setData([]);
-      setStatus(`Session started: ${newSessionId}`);
+    if (isCollecting && sessionId) {
+      setStatus(`Collecting data for session: ${sessionId}`);
 
       intervalId = setInterval(() => {
         navigator.geolocation.getCurrentPosition(
           (pos) => {
             const record = {
-              session_id: newSessionId,
+              session_id: sessionId,
               timestamp: new Date().toISOString(),
               latitude: pos.coords.latitude,
               longitude: pos.coords.longitude,
@@ -47,7 +43,7 @@ function App() {
               .then(() => {
                 setCount((prev) => prev + 1);
                 setStatus(
-                  `Session ${newSessionId}: Sent ${
+                  `Session ${sessionId}: Sent ${
                     count + 1
                   } points. Last (${record.latitude.toFixed(
                     5
@@ -66,9 +62,16 @@ function App() {
     }
 
     return () => clearInterval(intervalId);
-  }, [isCollecting, count, BACKEND_URL]);
+  }, [isCollecting, count, sessionId, BACKEND_URL]);
 
-  const startLogging = () => setIsCollecting(true);
+  const startLogging = () => {
+    if(!sessionId){
+      const newSessionId = `session_${Date.now()}`;
+      setSessionId(newSessionId);
+      setStatus(`Session Started for ${newSessionId}`);
+    }
+    setIsCollecting(true);
+  }
 
   const stopLogging = () => {
     setIsCollecting(false);
