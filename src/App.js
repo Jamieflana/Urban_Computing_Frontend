@@ -7,6 +7,10 @@ function App() {
   const [count, setCount] = useState(0);
   const [sessionId, setSessionId] = useState(null);
 
+  //Bikes
+  const [bikeCount, setBikeCount] = useState(0);
+  const [bikeTimestamp, setBikeTimestamp] = useState(null);
+
   const BACKEND_URL = process.env.REACT_APP_BACKEND_URL;
 
   useEffect(() => {
@@ -30,7 +34,7 @@ function App() {
               longitude: pos.coords.longitude,
               accuracy: pos.coords.accuracy,
             };
-            
+
             setData((prev) => [...prev, record]); // For local download
 
             //Send to Cloud
@@ -64,14 +68,36 @@ function App() {
     return () => clearInterval(intervalId);
   }, [isCollecting, count, sessionId, BACKEND_URL]);
 
+  useEffect(() => {
+    const fetchBikeData = () => {
+      fetch(`${BACKEND_URL}/bike_router/all`)
+        .then((res) => res.json())
+        .then((json) => {
+          if (json.status === "ok") {
+            setBikeCount(json.count || 0);
+            setBikeTimestamp(new Date().toLocaleTimeString());
+            console.log("Bike data updated:", json);
+          } else {
+            console.error("Error in bike data response:", json.message);
+          }
+        })
+        .catch((err) => console.error("Error fetching bike data:", err));
+    };
+
+    fetchBikeData(); // fetch immediately on load
+    const interval = setInterval(fetchBikeData, 60000); // every 1 minute
+
+    return () => clearInterval(interval);
+  }, [BACKEND_URL]);
+
   const startLogging = () => {
-    if(!sessionId){
+    if (!sessionId) {
       const newSessionId = `session_${Date.now()}`;
       setSessionId(newSessionId);
       setStatus(`Session Started for ${newSessionId}`);
     }
     setIsCollecting(true);
-  }
+  };
 
   const stopLogging = () => {
     setIsCollecting(false);
