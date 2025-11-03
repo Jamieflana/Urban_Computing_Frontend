@@ -137,6 +137,17 @@ function App() {
       <button onClick={downloadCSV} style={{ marginLeft: "10px" }}>
         Download CSV
       </button>
+
+      <div style={{ marginTop: "40px" }}>
+        <h3>🚲 DublinBikes (Smart Dublin)</h3>
+        <p>
+          <strong>Stations:</strong> {bikeCount}
+        </p>
+        <p>
+          <strong>Last updated:</strong>{" "}
+          {bikeTimestamp || "Waiting for data..."}
+        </p>
+      </div>
     </div>
   );
 }
