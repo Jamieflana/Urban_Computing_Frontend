@@ -59,47 +59,8 @@ function App() {
     }
 
     return () => clearInterval(intervalId);
-  }, [isCollecting, data.length]);
+  }, [isCollecting, data.length, BACKEND_GPS_URL]);
 
-  /*useEffect(() => {
-    if (!("geolocation" in navigator)) {
-      setStatus("Geolocation not supported on this device.");
-      return;
-    }
-
-    let intervalId;
-
-    if (isCollecting) {
-      setStatus("Starting GPS collection");
-      intervalId = setInterval(() => {
-        navigator.geolocation.getCurrentPosition(
-          (pos) => {
-            const record = {
-              timestamp: new Date().toISOString(),
-              latitude: pos.coords.latitude,
-              longitude: pos.coords.longitude,
-              accuracy: pos.coords.accuracy,
-            };
-            setData((prev) => [...prev, record]);
-            setStatus(
-              `Collected ${
-                data.length + 1
-              } points. Last: ${record.latitude.toFixed(
-                5
-              )}, ${record.longitude.toFixed(5)}`
-            );
-          },
-          (err) => {
-            setStatus("Error: " + err.message);
-          },
-          { enableHighAccuracy: true }
-        );
-      }, 1500); // collect every 1.5 seconds
-    }
-
-    return () => clearInterval(intervalId);
-  }, [isCollecting, data.length]);
-  */
   const startLogging = () => setIsCollecting(true);
   const stopLogging = () => setIsCollecting(false);
 
