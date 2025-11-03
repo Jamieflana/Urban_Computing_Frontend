@@ -76,6 +76,11 @@ function App() {
   const stopLogging = () => {
     setIsCollecting(false);
     setStatus(`Session ended: ${sessionId} (${count} points uploaded)`);
+
+    //Reset session ID
+    setSessionId(null);
+    setCount(0);
+    setData([]);
   };
 
   const downloadCSV = () => {
