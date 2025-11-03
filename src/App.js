@@ -4,8 +4,10 @@ function App() {
   const [data, setData] = useState([]);
   const [status, setStatus] = useState("Waiting for GPS");
   const [isCollecting, setIsCollecting] = useState(false);
+  const [count, setCount] = useState(0);
+  const [sessionId, setSessionId] = useState(null);
 
-  const BACKEND_GPS_URL = `${process.env.REACT_APP_BACKEND_URL}/real_collect`;
+  const BACKEND_URL = process.env.REACT_APP_BACKEND_URL;
 
   useEffect(() => {
     if (!("geolocation" in navigator)) {
@@ -16,33 +18,40 @@ function App() {
     let intervalId;
 
     if (isCollecting) {
-      setStatus("Starting GPS collection");
+      const newSessionId = `session_${Date.now()}`;
+      setSessionId(newSessionId);
+      setCount(0);
+      setData([]);
+      setStatus(`Session started: ${newSessionId}`);
 
       intervalId = setInterval(() => {
         navigator.geolocation.getCurrentPosition(
           (pos) => {
             const record = {
+              session_id: newSessionId,
               timestamp: new Date().toISOString(),
               latitude: pos.coords.latitude,
               longitude: pos.coords.longitude,
               accuracy: pos.coords.accuracy,
             };
+            
+            setData((prev) => [...prev, record]); // For local download
 
-            setData((prev) => [...prev, record]);
-
-            fetch(BACKEND_GPS_URL, {
+            //Send to Cloud
+            fetch(`${BACKEND_URL}/save_session`, {
               method: "POST",
               headers: { "Content-Type": "application/json" },
               body: JSON.stringify(record),
             })
               .then((res) => res.json())
               .then(() => {
+                setCount((prev) => prev + 1);
                 setStatus(
-                  `Sent ${
-                    data.length + 1
-                  } points. Last: ${record.latitude.toFixed(
+                  `Session ${newSessionId}: Sent ${
+                    count + 1
+                  } points. Last (${record.latitude.toFixed(
                     5
-                  )}, ${record.longitude.toFixed(5)}`
+                  )}, ${record.longitude.toFixed(5)})`
                 );
               })
               .catch((err) => {
@@ -50,19 +59,21 @@ function App() {
                 setStatus("Error sending data to backend");
               });
           },
-          (err) => {
-            setStatus("Error: " + err.message);
-          },
+          (err) => setStatus("Error: " + err.message),
           { enableHighAccuracy: true }
         );
-      }, 1500); // collect every 1.5 seconds
+      }, 1500); // every 1.5 seconds
     }
 
     return () => clearInterval(intervalId);
-  }, [isCollecting, data.length, BACKEND_GPS_URL]);
+  }, [isCollecting, count, BACKEND_URL]);
 
   const startLogging = () => setIsCollecting(true);
-  const stopLogging = () => setIsCollecting(false);
+
+  const stopLogging = () => {
+    setIsCollecting(false);
+    setStatus(`Session ended: ${sessionId} (${count} points uploaded)`);
+  };
 
   const downloadCSV = () => {
     if (data.length === 0) {
