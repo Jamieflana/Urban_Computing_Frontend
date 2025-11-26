@@ -1,152 +1,165 @@
-import { useEffect, useState } from "react";
+import { useState, useEffect } from "react";
+import useGPSLogger from "./hooks/useGpsLogger";
+import useBikeData from "./hooks/useBikeData";
+import useFusion from "./hooks/useFusion";
+import useAnalytics from "./hooks/useAnalytics";
+
+import { auth } from "./firebase";
+import { onAuthStateChanged } from "firebase/auth";
+import Login from "./components/Login";
+
+import FusionSummary from "./components/FusionSummary";
+import MapView from "./components/MapView";
+import AnalyticsView from "./components/AnalyticsView";
+
+import "./AppLayout.css";
 
 function App() {
-  const [data, setData] = useState([]);
-  const [status, setStatus] = useState("Waiting for GPS");
-  const [isCollecting, setIsCollecting] = useState(false);
-  const [count, setCount] = useState(0);
-  const [sessionId, setSessionId] = useState(null);
-
-  //Bikes
-  const [bikeCount, setBikeCount] = useState(0);
-  const [bikeTimestamp, setBikeTimestamp] = useState(null);
-
+  //const BACKEND_URL = "http://localhost:8000";
   const BACKEND_URL = process.env.REACT_APP_BACKEND_URL;
+  const [highlightStation, setHighlightStation] = useState(null);
+  const [activeView, setActiveView] = useState("map");
 
+  // Firebase login tracking
+  const [user, setUser] = useState(null);
+  const [idToken, setIdToken] = useState(null);
+  const [authLoading, setAuthLoading] = useState(true);
+
+  // Listen for Firebase login state
   useEffect(() => {
-    if (!("geolocation" in navigator)) {
-      setStatus("Geolocation not supported on this device.");
-      return;
-    }
+    const unsubscribe = onAuthStateChanged(auth, async (currentUser) => {
+      setUser(currentUser);
+      setAuthLoading(false);
 
-    let intervalId;
+      if (currentUser) {
+        const token = await currentUser.getIdToken();
+        setIdToken(token);
+      } else {
+        setIdToken(null);
+      }
+    });
 
-    if (isCollecting && sessionId) {
-      setStatus(`Collecting data for session: ${sessionId}`);
+    return () => unsubscribe();
+  }, []);
 
-      intervalId = setInterval(() => {
-        navigator.geolocation.getCurrentPosition(
-          (pos) => {
-            const record = {
-              session_id: sessionId,
-              timestamp: new Date().toISOString(),
-              latitude: pos.coords.latitude,
-              longitude: pos.coords.longitude,
-              accuracy: pos.coords.accuracy,
-            };
+  const { data, status, isCollecting, startLogging, stopLogging, sessionId } =
+    useGPSLogger(BACKEND_URL, idToken);
 
-            setData((prev) => [...prev, record]); // For local download
+  const { bikeCount, bikeTimestamp, stations } = useBikeData(BACKEND_URL);
 
-            //Send to Cloud
-            fetch(`${BACKEND_URL}/save_session`, {
-              method: "POST",
-              headers: { "Content-Type": "application/json" },
-              body: JSON.stringify(record),
-            })
-              .then((res) => res.json())
-              .then(() => {
-                setCount((prev) => prev + 1);
-                setStatus(
-                  `Session ${sessionId}: Sent ${
-                    count + 1
-                  } points. Last (${record.latitude.toFixed(
-                    5
-                  )}, ${record.longitude.toFixed(5)})`
-                );
-              })
-              .catch((err) => {
-                console.error("Failed to send data:", err);
-                setStatus("Error sending data to backend");
-              });
-          },
-          (err) => setStatus("Error: " + err.message),
-          { enableHighAccuracy: true }
-        );
-      }, 1500); // every 1.5 seconds
-    }
+  const { nearestStation, distance, fusionTimestamp, eta, top3 } = useFusion(
+    BACKEND_URL,
+    sessionId,
+    data.length,
+    idToken
+  );
 
-    return () => clearInterval(intervalId);
-  }, [isCollecting, count, sessionId, BACKEND_URL]);
+  const {
+    trends: stationTrends,
+    userStats,
+    loading: analyticsLoading,
+  } = useAnalytics(BACKEND_URL, sessionId, activeView, idToken);
 
-  useEffect(() => {
-    const fetchBikeData = () => {
-      fetch(`${BACKEND_URL}/bike_router/all`)
-        .then((res) => res.json())
-        .then((json) => {
-          if (json.status === "ok") {
-            setBikeCount(json.count || 0);
-            setBikeTimestamp(new Date().toLocaleTimeString());
-            console.log("Bike data updated:", json);
-          } else {
-            console.error("Error in bike data response:", json.message);
-          }
-        })
-        .catch((err) => console.error("Error fetching bike data:", err));
-    };
+  const userLocation =
+    data.length > 0
+      ? {
+          lat: data[data.length - 1].latitude,
+          lon: data[data.length - 1].longitude,
+        }
+      : null;
 
-    fetchBikeData(); // fetch immediately on load
-    const interval = setInterval(fetchBikeData, 60000); // every 1 minute
-
-    return () => clearInterval(interval);
-  }, [BACKEND_URL]);
-
-  const startLogging = () => {
-    if (!sessionId) {
-      const newSessionId = `session_${Date.now()}`;
-      setSessionId(newSessionId);
-      setStatus(`Session Started for ${newSessionId}`);
-    }
-    setIsCollecting(true);
-  };
-
-  const stopLogging = () => {
-    setIsCollecting(false);
-    setStatus(`Session ended: ${sessionId} (${count} points uploaded)`);
-
-    //Reset session ID
-    setSessionId(null);
-    setCount(0);
-    setData([]);
-  };
-
-  const downloadCSV = () => {
-    if (data.length === 0) {
-      alert("No data collected yet");
-      return;
-    }
-    const header = "timestamp,latitude,longitude,accuracy\n";
-    const rows = data
-      .map((d) => `${d.timestamp},${d.latitude},${d.longitude},${d.accuracy}`)
-      .join("\n");
-    const blob = new Blob([header + rows], { type: "text/csv" });
-    const link = document.createElement("a");
-    link.href = URL.createObjectURL(blob);
-    link.download = "user_gps_data.csv";
-    link.click();
-  };
+  //
+  if (authLoading) return <div>Loading...</div>;
+  if (!user) return <Login />;
 
   return (
-    <div style={{ textAlign: "center", marginTop: "100px" }}>
-      <h1>GPS Logger</h1>
-      <p>{status}</p>
-      {!isCollecting ? (
-        <button onClick={startLogging}>Start Logging</button>
-      ) : (
-        <button onClick={stopLogging}>Stop Logging</button>
-      )}
-      <button onClick={downloadCSV} style={{ marginLeft: "10px" }}>
-        Download CSV
-      </button>
+    <div className="app-container">
+      {/* SIDEBAR */}
+      <div className="sidebar">
+        <h2 className="sidebar-title">Dublin Bike finder</h2>
 
-      <div style={{ marginTop: "40px" }}>
-        <h3>🚲 DublinBikes (Smart Dublin)</h3>
-        <p>
-          <strong>Stations:</strong> {bikeCount}
-        </p>
-        <p>
-          <strong>Last updated:</strong>{" "}
-          {bikeTimestamp || "Waiting for data..."}
-        </p>
+        <button
+          className={`sidebar-btn ${activeView === "map" ? "active" : ""}`}
+          onClick={() => setActiveView("map")}
+        >
+          Map View
+        </button>
+
+        <button
+          className={`sidebar-btn ${
+            activeView === "analytics" ? "active" : ""
+          }`}
+          onClick={() => setActiveView("analytics")}
+        >
+          Analytics
+        </button>
+      </div>
+
+      <div className="main-content">
+        <div className="topbar">
+          <h1>Dublin Bike Finder</h1>
+        </div>
+
+        {activeView === "map" && (
+          <div className="map-info-layout">
+            <div className="map-column">
+              <MapView
+                userLocation={userLocation}
+                station={nearestStation}
+                stations={stations}
+                distance={distance}
+                highlightStation={highlightStation}
+              />
+            </div>
+
+            <div className="info-card">
+              <div className="info-card-header">
+                <span className="info-card-title">
+                  Find your closest available bike
+                </span>
+
+                <button
+                  className={`circle-btn-small ${
+                    isCollecting ? "stop" : "start"
+                  }`}
+                  onClick={isCollecting ? stopLogging : startLogging}
+                >
+                  <img
+                    src={isCollecting ? "/media-pause.png" : "/media-play.png"}
+                    alt="control icon"
+                    className="circle-btn-icon"
+                  />
+                </button>
+              </div>
+
+              <p className="gps-status">{status}</p>
+
+              <p>
+                <strong>Stations:</strong> {bikeCount}
+              </p>
+              <p>
+                <strong>Last updated:</strong> {bikeTimestamp}
+              </p>
+
+              <FusionSummary
+                nearestStation={nearestStation}
+                distance={distance}
+                timestamp={fusionTimestamp}
+                eta={eta}
+                top3={top3}
+                onSelectStation={setHighlightStation}
+              />
+            </div>
+          </div>
+        )}
+
+        {activeView === "analytics" && (
+          <AnalyticsView
+            stationTrends={stationTrends}
+            userStats={userStats}
+            analyticsLoading={analyticsLoading}
+          />
+        )}
       </div>
     </div>
   );

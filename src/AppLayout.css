@@ -1,0 +1,298 @@
+.app-container {
+  display: flex;
+  height: 100vh;
+  width: 100%;
+  overflow: hidden;
+  font-family: Arial, sans-serif;
+}
+
+/* SIDEBAR */
+.sidebar {
+  width: 170px;
+  background: #1a1c1f;
+  color: white;
+  padding: 20px;
+  display: flex;
+  flex-direction: column;
+}
+
+.sidebar-title {
+  font-size: 22px;
+  margin-bottom: 30px;
+  text-align: center;
+}
+
+.sidebar-btn {
+  padding: 12px;
+  margin-bottom: 10px;
+  border: none;
+  background: #2c2f33;
+  color: white;
+  cursor: pointer;
+  border-radius: 6px;
+  text-align: left;
+  font-size: 16px;
+}
+
+.sidebar-btn:hover {
+  background: #3a3d41;
+}
+
+.sidebar-btn.active {
+  background: #5865f2;
+}
+
+/* PROFILE ICON */
+.sidebar-footer {
+  margin-top: auto;
+  text-align: center;
+}
+
+.profile-icon {
+  width: 60px;
+  border-radius: 50%;
+  cursor: pointer;
+}
+
+/* MAIN CONTENT */
+.main-content {
+  flex: 1;
+  background: #f4f4f4;
+  overflow-y: auto;
+  padding: 20px;
+}
+
+.info-panel {
+  margin-top: 20px;
+  text-align: center;
+}
+
+.topbar {
+  width: 100%;
+  background: #ffffff;
+  border-bottom: 2px solid #e5e5e5;
+  padding: 12px 20px;
+  position: sticky;
+  top: 0;
+  z-index: 1000;
+}
+
+.topbar h1 {
+  margin: 0;
+  font-size: 24px;
+  font-weight: 600;
+  color: #333;
+}
+
+/* GPS Logger Container */
+.gps-logger-row {
+  display: flex;
+  align-items: center;
+  justify-content: flex-start;
+  gap: 15px;
+  margin-bottom: 10px;
+  margin-top: 10px;
+}
+
+.gps-logger-label {
+  font-size: 18px;
+  font-weight: 600;
+  letter-spacing: 1px;
+  color: #333;
+  line-height: 1;
+  margin: 0;
+  padding: 0;
+}
+
+/* SIDEWAYS TITLE */
+.gps-logger-title {
+  font-size: 22px;
+  font-weight: bold;
+  letter-spacing: 4px;
+  margin: 0;
+  color: #333;
+}
+
+/* Status text below rotated label */
+.gps-status {
+  font-size: 14px;
+  margin-bottom: 20px;
+  color: #555;
+}
+
+
+.circle-btn-small {
+  width: 34px;
+  height: 34px;
+  border-radius: 50%;
+  border: none;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  color: white;
+  background: #22e573;
+  box-shadow: 0px 4px 12px rgba(0,0,0,0.25);
+  transition: transform 0.18s ease, background-color 0.2s ease;
+}
+
+.circle-btn-small:hover {
+  transform: scale(1.12);
+}
+
+/* Start */
+.circle-btn-small.start {
+  background: #22e573;
+}
+.circle-btn-small.start:hover {
+  background: #00b14a;
+}
+
+/* Stop */
+.circle-btn-small.stop {
+  background: #ff3b30;
+}
+.circle-btn-small.stop:hover {
+  background: #d32f2f;
+}
+.circle-btn-icon {
+  width: 16px;     
+  height: 16px;
+  object-fit: contain;
+  pointer-events: none;
+}
+
+
+
+
+.map-info-layout {
+  display: flex;
+  gap: 20px;
+  width: 100%;
+  height: calc(100vh - 80px); /* adjusts for topbar */
+  padding: 10px 20px;
+}
+
+.map-column {
+  flex: 2; /* map takes more space */
+  min-width: 60%;
+}
+
+.info-card {
+  flex: 1; /* card takes smaller portion */
+  background: white;
+  padding: 20px 25px;
+  border-radius: 14px;
+  box-shadow: 0 4px 20px rgba(0,0,0,0.12);
+  overflow-y: auto;
+  max-height: 90vh; /* prevents overflow */
+}
+
+.info-card-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 14px;
+}
+
+.info-card-title {
+  font-size: 18px;
+  font-weight: bold;
+  letter-spacing: 1px;
+  color: #333;
+}
+
+/* Left panel (GPS logger) */
+.left-logger {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+}
+
+/* Right panel (bike info) */
+.right-bike-info {
+  flex: 1;
+  background: white;
+  padding: 20px 30px;
+  border-radius: 12px;
+  box-shadow: 0px 4px 20px rgba(0,0,0,0.08);
+  margin-left: 40px;
+}
+
+.right-bike-info h3 {
+  margin-top: 0;
+}
+
+/* Make entire top row responsive */
+@media (max-width: 900px) {
+  .top-info-row {
+    flex-direction: column;
+    align-items: center;
+  }
+
+  .right-bike-info {
+    margin-left: 0;
+    margin-top: 20px;
+    width: 90%;
+  }
+}
+
+.map-overlay {
+  position: absolute;
+  top: 12px;
+  right: 12px;
+
+  background: rgba(255, 255, 255, 0.85);
+  backdrop-filter: blur(6px);
+
+  padding: 6px 10px;
+  border-radius: 8px;
+
+  box-shadow: 0 2px 6px rgba(0,0,0,0.18);
+
+  font-size: 12px;
+  line-height: 1.2;
+  z-index: 9999;
+  max-width: 150px;
+
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+
+.overlay-row {
+  font-weight: 600;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.overlay-sub {
+  font-size: 11px;
+  opacity: 0.8;
+}
+
+.logging-controls {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.bike-picker {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.bike-picker label {
+  font-weight: bold;
+}
+
+.bike-picker input {
+  width: 55px;
+  padding: 4px;
+  border: 1px solid #ccc;
+  border-radius: 6px;
+}
+

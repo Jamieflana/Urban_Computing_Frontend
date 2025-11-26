@@ -1,0 +1,77 @@
+.fusion-summary {
+  padding: 14px;
+  border-radius: 10px;
+  background: #ffffff;
+}
+
+.fusion-header {
+  margin-bottom: 8px;
+}
+
+.nearest-card {
+  padding: 12px;
+  background: #e8f5e9;
+  border-left: 4px solid #4caf50;
+  border-radius: 8px;
+  margin-bottom: 15px;
+}
+
+.fusion-updated {
+  opacity: 0.7;
+  font-size: 0.85rem;
+}
+
+/* ---------- Top 3 section ----------- */
+
+.top3-container {
+  margin-top: 10px;
+}
+
+.top3-title {
+  margin-bottom: 8px;
+}
+
+.top3-list {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.top3-card {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 12px 14px;
+  background: #f6f6f6;
+  border-radius: 8px;
+  cursor: pointer;
+  border-left: 4px solid #1976d2;
+  transition: 0.2s ease;
+}
+
+.top3-card:hover {
+  background: #e3f2fd;
+  transform: translateX(3px);
+}
+
+.top3-info {
+  display: flex;
+  flex-direction: column;
+}
+
+.top3-name {
+  font-size: 1rem;
+}
+
+.top3-sub {
+  font-size: 0.85rem;
+  opacity: 0.8;
+  margin: 0;
+}
+
+.top3-dot {
+  width: 10px;
+  height: 10px;
+  background: #1976d2;
+  border-radius: 50%;
+}
