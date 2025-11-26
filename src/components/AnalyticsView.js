@@ -1,7 +1,7 @@
-import { useState } from "react";
 import StationChart from "./charts/StationChart";
 import RouteMap from "./charts/RouteMap";
 import "./Analytics.css";
+import React from 'react';
 
 export default function AnalyticsView({
   stationTrends,

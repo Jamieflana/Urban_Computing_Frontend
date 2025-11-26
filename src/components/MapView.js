@@ -70,6 +70,7 @@ function AutoZoom({ userLocation, nearestStation, stations }) {
 
     map.setView(DUBLIN_CENTER, 12);
     hasZoomed.current = true;
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
   return null;
@@ -85,14 +86,11 @@ function HighlightZoom({ highlightStation }) {
     map.flyTo([highlightStation.lat, highlightStation.lon], 17, {
       duration: 1.2,
     });
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [highlightStation]);
 
   return null;
 }
-
-/* ======================================================================== */
-/*                             MAIN COMPONENT                               */
-/* ======================================================================== */
 
 export default function MapView({
   userLocation,
