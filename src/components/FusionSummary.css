@@ -1,3 +1,46 @@
+.temporal-context-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.5rem;
+  padding: 0.5rem 1rem;
+  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  border-radius: 20px;
+  color: white;
+  font-size: 0.9rem;
+  font-weight: 600;
+  margin-bottom: 1rem;
+  box-shadow: 0 2px 8px rgba(102, 126, 234, 0.3);
+}
+.temporal-context-wrapper {
+  position: relative;
+  margin-bottom: 1rem;
+}
+
+.temporal-context-badge:hover {
+  transform: scale(1.05);
+}
+
+.info-icon {
+  font-size: 0.8rem;
+  opacity: 0.8;
+  margin-left: 0.25rem;
+}
+.context-tooltip {
+  position: absolute;
+  top: 100%;
+  left: 0;
+  right: 0;
+  margin-top: 0.5rem;
+  padding: 0.75rem;
+  background: #2c3e50;
+  color: white;
+  border-radius: 8px;
+  font-size: 0.85rem;
+  line-height: 1.4;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2);
+  z-index: 1000;
+}
+
 .fusion-summary {
   padding: 14px;
   border-radius: 10px;
@@ -74,4 +117,23 @@
   height: 10px;
   background: #1976d2;
   border-radius: 50%;
+}
+
+.context-icon{
+  font-size: 1.2rem;
+  vertical-align: middle;
+}
+.temporal-context-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.5rem;
+  padding: 0.5rem 1rem;
+  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  border-radius: 20px;
+  color: white;
+  font-size: 0.9rem;
+  font-weight: 600;
+  box-shadow: 0 2px 8px rgba(102, 126, 234, 0.3);
+  cursor: help;
+  transition: transform 0.2s;
 }

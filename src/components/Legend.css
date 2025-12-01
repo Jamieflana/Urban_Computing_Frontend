@@ -1,0 +1,65 @@
+.map-legend {
+  position: absolute;
+  bottom: 12px;
+  left: 12px;
+
+  background: rgba(255, 255, 255, 0.92);
+  backdrop-filter: blur(3px);
+
+  padding: 6px 8px;
+  border-radius: 8px;
+
+  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.10);
+  font-size: 11px;
+  width: 125px; /* keeps it tight */
+  z-index: 1000;
+}
+
+.legend-title {
+  font-size: 8px;
+  font-weight: 600;
+  margin-bottom: 1px;
+}
+
+.legend-item {
+  display: flex;
+  align-items: center;
+  margin-bottom: 3px;
+}
+
+.legend-item:last-child {
+  margin-bottom: 0;
+}
+
+.legend-item span {
+  margin-left: 5px;
+}
+
+.user-dot {
+  width: 8px;
+  height: 8px;
+  background: #0af;
+  border-radius: 50%;
+  display: inline-block;
+}
+
+.legend-circle {
+  width: 10px;
+  height: 10px;
+  border: 2px solid #ff9f00;
+  border-radius: 50%;
+  display: inline-block;
+}
+
+.legend-bike {
+  width: 11px;
+  height: 11px;
+}
+
+.legend-line {
+  width: 14px;
+  height: 2px;
+  background: #2ecc71;
+  border-radius: 1px;
+  display: inline-block;
+}

@@ -13,7 +13,7 @@ export default function useFusion(BACKEND_URL, sessionId, gpsCount, idToken) {
     if (gpsCount === 0) return;
 
     const fetchFusion = () => {
-      fetch(`${BACKEND_URL}/fusion/get_fusion/${sessionId}`, {
+      fetch(`${BACKEND_URL}/fusion/get_fusion/prediction/${sessionId}`, {
         headers: {
           Authorization: `Bearer ${idToken}`,
         },
@@ -21,7 +21,11 @@ export default function useFusion(BACKEND_URL, sessionId, gpsCount, idToken) {
         .then((res) => res.json())
         .then((json) => {
           if (json.status === "ok") {
-            setNearestStation(json.nearest_station);
+            const stationWithContext = {
+              ...json.nearest_station,
+              temporal_context: json.temporal_context, // Add context here
+            };
+            setNearestStation(stationWithContext);
             setDistance(json.distance_to_station_m);
             setEta(json.eta_seconds);
             setTop3(json.top3 || []);

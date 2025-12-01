@@ -1,22 +1,24 @@
-import { useState, useEffect } from "react";
-import useGPSLogger from "./hooks/useGpsLogger";
+import { useEffect, useState } from "react";
+import useAnalytics from "./hooks/useAnalytics";
 import useBikeData from "./hooks/useBikeData";
 import useFusion from "./hooks/useFusion";
-import useAnalytics from "./hooks/useAnalytics";
+import useGPSLogger from "./hooks/useGpsLogger";
 
-import { auth } from "./firebase";
 import { onAuthStateChanged } from "firebase/auth";
 import Login from "./components/Login";
+import { auth } from "./firebase";
 
+import AnalyticsView from "./components/AnalyticsView";
 import FusionSummary from "./components/FusionSummary";
 import MapView from "./components/MapView";
-import AnalyticsView from "./components/AnalyticsView";
+
+import TripPlanner from "./components/TripPlanner";
 
 import "./AppLayout.css";
 
 function App() {
-  //const BACKEND_URL = "http://localhost:8000";
-  const BACKEND_URL = process.env.REACT_APP_BACKEND_URL;
+  const BACKEND_URL = "http://localhost:8000";
+  //const BACKEND_URL = process.env.REACT_APP_BACKEND_URL;
   const [highlightStation, setHighlightStation] = useState(null);
   const [activeView, setActiveView] = useState("map");
 
@@ -24,6 +26,11 @@ function App() {
   const [user, setUser] = useState(null);
   const [idToken, setIdToken] = useState(null);
   const [authLoading, setAuthLoading] = useState(true);
+
+  const [userSessions, setUserSessions] = useState([]);
+  const [selectedSession, setSelectedSession] = useState(null);
+
+  const [tripPlan, setTripPlan] = useState(null);
 
   // Listen for Firebase login state
   useEffect(() => {
@@ -45,11 +52,32 @@ function App() {
   const { data, status, isCollecting, startLogging, stopLogging, sessionId } =
     useGPSLogger(BACKEND_URL, idToken);
 
+  //Fetch the sessions:
+  useEffect(() => {
+    if (user && idToken) {
+      console.log("Fetching sessions");
+      fetch(`${BACKEND_URL}/analytics/sessions`, {
+        headers: { Authorization: `Bearer ${idToken}` },
+      })
+        .then((res) => res.json())
+        .then((data) => {
+          console.log("session response: ", data);
+          if (data.status === "ok") {
+            console.log("setting sessions: ", data.sessions);
+            setUserSessions(data.sessions || []);
+          }
+        })
+        .catch((err) => console.error("Failed to load sessions:", err));
+    }
+  }, [user, idToken, BACKEND_URL]);
+
+  const activeSessionId = selectedSession || sessionId;
+
   const { bikeCount, bikeTimestamp, stations } = useBikeData(BACKEND_URL);
 
   const { nearestStation, distance, fusionTimestamp, eta, top3 } = useFusion(
     BACKEND_URL,
-    sessionId,
+    activeSessionId,
     data.length,
     idToken
   );
@@ -58,7 +86,7 @@ function App() {
     trends: stationTrends,
     userStats,
     loading: analyticsLoading,
-  } = useAnalytics(BACKEND_URL, sessionId, activeView, idToken);
+  } = useAnalytics(BACKEND_URL, activeSessionId, activeView, idToken);
 
   const userLocation =
     data.length > 0
@@ -68,7 +96,6 @@ function App() {
         }
       : null;
 
-  //
   if (authLoading) return <div>Loading...</div>;
   if (!user) return <Login />;
 
@@ -109,6 +136,8 @@ function App() {
                 stations={stations}
                 distance={distance}
                 highlightStation={highlightStation}
+                top3Stations={top3}
+                tripPlan={tripPlan}
               />
             </div>
 
@@ -149,6 +178,53 @@ function App() {
                 top3={top3}
                 onSelectStation={setHighlightStation}
               />
+              <TripPlanner
+                stations={stations}
+                nearestStation={highlightStation || nearestStation}
+                idToken={idToken}
+                BACKEND_URL={BACKEND_URL}
+                onTripPlanned={setTripPlan}
+              />
+              {tripPlan && (
+                <div className="trip-summary">
+                  <h4> Trip Plan</h4>
+                  <div className="trip-leg">
+                    <p>
+                      <strong>Pickup:</strong> {tripPlan.pickup_station.name}
+                    </p>
+                    <p style={{ fontSize: "0.85rem", color: "#666" }}>
+                      {tripPlan.pickup_station.bikes} bikes available
+                    </p>
+                  </div>
+
+                  <div className="trip-leg">
+                    <p>
+                      <strong>Destination:</strong>{" "}
+                      {tripPlan.destination_station.name}
+                    </p>
+                    <p style={{ fontSize: "0.85rem", color: "#666" }}>
+                      {tripPlan.distance_m}m -{" "}
+                      {Math.floor(tripPlan.eta_sec / 60)} min cycling
+                    </p>
+                  </div>
+
+                  <button
+                    onClick={() => setTripPlan(null)}
+                    style={{
+                      width: "100%",
+                      padding: "0.5rem",
+                      background: "#f44336",
+                      color: "white",
+                      border: "none",
+                      borderRadius: "4px",
+                      cursor: "pointer",
+                      marginTop: "0.5rem",
+                    }}
+                  >
+                    Clear Trip
+                  </button>
+                </div>
+              )}
             </div>
           </div>
         )}
@@ -158,6 +234,10 @@ function App() {
             stationTrends={stationTrends}
             userStats={userStats}
             analyticsLoading={analyticsLoading}
+            userSessions={userSessions}
+            selectedSession={selectedSession}
+            setSelectedSession={setSelectedSession}
+            currentSessionId={sessionId}
           />
         )}
       </div>

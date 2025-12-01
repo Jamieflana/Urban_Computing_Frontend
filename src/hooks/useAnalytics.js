@@ -18,7 +18,7 @@ export default function useAnalytics(
     async function load() {
       setLoading(true);
       const t = await fetch(
-        `${BACKEND_URL}/analytics/user/${sessionId}/trends`,
+        `${BACKEND_URL}/analytics/user/stats`,
         {
           headers: {
             Authorization: `Bearer ${idToken}`,
@@ -26,7 +26,7 @@ export default function useAnalytics(
         }
       );
       const trendsJson = await t.json();
-      setTrends(trendsJson);
+      setTrends(trendsJson.trends);
 
       const u = await fetch(
         `${BACKEND_URL}/analytics/user/${sessionId}/stats`,
@@ -38,7 +38,6 @@ export default function useAnalytics(
       );
       const userJson = await u.json();
       setUserStats(userJson);
-
       setLoading(false);
     }
 

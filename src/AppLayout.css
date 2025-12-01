@@ -42,7 +42,7 @@
   background: #5865f2;
 }
 
-/* PROFILE ICON */
+
 .sidebar-footer {
   margin-top: auto;
   text-align: center;
@@ -54,7 +54,7 @@
   cursor: pointer;
 }
 
-/* MAIN CONTENT */
+
 .main-content {
   flex: 1;
   background: #f4f4f4;
@@ -84,7 +84,7 @@
   color: #333;
 }
 
-/* GPS Logger Container */
+
 .gps-logger-row {
   display: flex;
   align-items: center;
@@ -104,7 +104,7 @@
   padding: 0;
 }
 
-/* SIDEWAYS TITLE */
+
 .gps-logger-title {
   font-size: 22px;
   font-weight: bold;
@@ -113,7 +113,7 @@
   color: #333;
 }
 
-/* Status text below rotated label */
+
 .gps-status {
   font-size: 14px;
   margin-bottom: 20px;
@@ -140,7 +140,7 @@
   transform: scale(1.12);
 }
 
-/* Start */
+
 .circle-btn-small.start {
   background: #22e573;
 }
@@ -169,23 +169,23 @@
   display: flex;
   gap: 20px;
   width: 100%;
-  height: calc(100vh - 80px); /* adjusts for topbar */
+  height: calc(100vh - 80px); 
   padding: 10px 20px;
 }
 
 .map-column {
-  flex: 2; /* map takes more space */
+  flex: 2; 
   min-width: 60%;
 }
 
 .info-card {
-  flex: 1; /* card takes smaller portion */
+  flex: 1; 
   background: white;
   padding: 20px 25px;
   border-radius: 14px;
   box-shadow: 0 4px 20px rgba(0,0,0,0.12);
   overflow-y: auto;
-  max-height: 90vh; /* prevents overflow */
+  max-height: 90vh; 
 }
 
 .info-card-header {
@@ -202,15 +202,9 @@
   color: #333;
 }
 
-/* Left panel (GPS logger) */
-.left-logger {
-  flex: 1;
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-}
 
-/* Right panel (bike info) */
+
+
 .right-bike-info {
   flex: 1;
   background: white;
@@ -224,7 +218,7 @@
   margin-top: 0;
 }
 
-/* Make entire top row responsive */
+
 @media (max-width: 900px) {
   .top-info-row {
     flex-direction: column;
@@ -296,3 +290,31 @@
   border-radius: 6px;
 }
 
+.trip-summary {
+  margin-top: 1rem;
+  padding: 1rem;
+  background: #f8f9fa;
+  border-radius: 8px;
+  border: 2px solid #4a90e2;
+}
+
+.trip-summary h4 {
+  margin-top: 0;
+  margin-bottom: 0.75rem;
+  color: #333;
+}
+
+.trip-leg {
+  margin-bottom: 0.75rem;
+  padding-bottom: 0.75rem;
+  border-bottom: 1px solid #ddd;
+}
+
+.trip-leg:last-of-type {
+  border-bottom: none;
+  margin-bottom: 0.5rem;
+}
+
+.trip-leg p {
+  margin: 0.25rem 0;
+}

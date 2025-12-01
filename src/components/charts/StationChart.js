@@ -12,7 +12,6 @@ Chart.register(BarElement, CategoryScale, LinearScale, Tooltip, Legend);
 
 export default function StationChart({ trends }) {
   if (!trends) return <p>No data</p>;
-
   //Unpack the data
   const labels = Object.keys(trends);
   const values = Object.values(trends);
