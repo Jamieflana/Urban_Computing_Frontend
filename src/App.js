@@ -17,8 +17,8 @@ import TripPlanner from "./components/TripPlanner";
 import "./AppLayout.css";
 
 function App() {
-  const BACKEND_URL = "http://localhost:8000";
-  //const BACKEND_URL = process.env.REACT_APP_BACKEND_URL;
+  //const BACKEND_URL = "http://localhost:8000";
+  const BACKEND_URL = process.env.REACT_APP_BACKEND_URL;
   const [highlightStation, setHighlightStation] = useState(null);
   const [activeView, setActiveView] = useState("map");
 
